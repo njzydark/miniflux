@@ -37,7 +37,7 @@ var (
 )
 
 // ProcessFeedEntries downloads original web page for entries and apply filters.
-func ProcessFeedEntries(store *storage.Storage, feed *model.Feed, user *model.User) {
+func ProcessFeedEntries(store *storage.Storage, feed *model.Feed, user *model.User, force bool) {
 	var filteredEntries model.Entries
 
 	// array used for bulk push
@@ -54,7 +54,10 @@ func ProcessFeedEntries(store *storage.Storage, feed *model.Feed, user *model.Us
 		}
 
 		url := getUrlFromEntry(feed, entry)
-		entryIsNew := !store.EntryURLExists(feed.ID, entry.URL)
+		entryIsNew := force;
+		if !force {
+			entryIsNew = !store.EntryURLExists(feed.ID, entry.URL)
+		}
 		if feed.Crawler && entryIsNew {
 			logger.Debug("[Processor] Crawling entry %q from feed %q", url, feed.FeedURL)
 

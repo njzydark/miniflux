@@ -5,6 +5,7 @@ package ui // import "miniflux.app/ui"
 
 import (
 	"net/http"
+	"strconv"
 
 	"miniflux.app/http/request"
 	"miniflux.app/http/response/html"
@@ -15,7 +16,12 @@ import (
 
 func (h *handler) refreshFeed(w http.ResponseWriter, r *http.Request) {
 	feedID := request.RouteInt64Param(r, "feedID")
-	if err := feedHandler.RefreshFeed(h.store, request.UserID(r), feedID); err != nil {
+	forceStr := request.QueryStringParam(r, "force", "false")
+	force, err := strconv.ParseBool(forceStr)
+	if err != nil {
+		logger.Error("[UI:RefreshFeed:parseForceQueryParam] %v", err)
+	}
+	if err := feedHandler.RefreshFeed(h.store, request.UserID(r), feedID, force); err != nil {
 		logger.Error("[UI:RefreshFeed] %v", err)
 	}
 
